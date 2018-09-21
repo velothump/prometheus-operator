@@ -139,6 +139,8 @@ type Config struct {
 	PrometheusDefaultBaseImage   string
 	ThanosDefaultBaseImage       string
 	Namespaces                   []string
+	PrometheusCRDNamespaces      []string
+	AlertmanagerCRDNamespaces    []string
 	Labels                       Labels
 	CrdGroup                     string
 	CrdKinds                     monitoringv1.CrdKinds
@@ -205,7 +207,7 @@ func New(conf Config, logger log.Logger) (*Operator, error) {
 	}
 
 	c.promInf = cache.NewSharedIndexInformer(
-		listwatch.MultiNamespaceListerWatcher(c.config.Namespaces, func(namespace string) cache.ListerWatcher {
+		listwatch.MultiNamespaceListerWatcher(c.config.PrometheusCRDNamespaces, func(namespace string) cache.ListerWatcher {
 			return &cache.ListWatch{
 				ListFunc:  mclient.MonitoringV1().Prometheuses(namespace).List,
 				WatchFunc: mclient.MonitoringV1().Prometheuses(namespace).Watch,

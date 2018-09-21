@@ -56,7 +56,9 @@ const (
 )
 
 var (
-	ns = namespaces{}
+	ns                        = namespaces{}
+	prometheusCRDnamespaces   = namespaces{}
+	alertmanagerCRDnamespaces = namespaces{}
 )
 
 type namespaces map[string]struct{}
@@ -124,6 +126,8 @@ func init() {
 	flagset.StringVar(&cfg.PrometheusDefaultBaseImage, "prometheus-default-base-image", "quay.io/prometheus/prometheus", "Prometheus default base image")
 	flagset.StringVar(&cfg.ThanosDefaultBaseImage, "thanos-default-base-image", "improbable/thanos", "Thanos default base image")
 	flagset.Var(ns, "namespaces", "Namespaces to scope the interaction of the Prometheus Operator and the apiserver.")
+	flagset.Var(alertmanagerCRDnamespaces, "alertmanager-crd-namespaces", "Only operate on alertmanager CRDs from these namespaces")
+	flagset.Var(prometheusCRDnamespaces, "prometheus-crd-namespaces", "Only operate on prometheus CRDs from these namespaces")
 	flagset.Var(&cfg.Labels, "labels", "Labels to be add to all resources created by the operator")
 	flagset.StringVar(&cfg.CrdGroup, "crd-apigroup", monitoringv1.Group, "prometheus CRD  API group name")
 	flagset.Var(&cfg.CrdKinds, "crd-kinds", " - EXPERIMENTAL (could be removed in future releases) - customize CRD kind names")
@@ -135,6 +139,9 @@ func init() {
 	flagset.BoolVar(&cfg.ManageCRDs, "manage-crds", true, "Manage all CRDs with the Prometheus Operator.")
 	flagset.Parse(os.Args[1:])
 	cfg.Namespaces = ns.asSlice()
+
+	cfg.AlertmanagerCRDNamespaces = alertmanagerCRDnamespaces.asSlice()
+	cfg.PrometheusCRDNamespaces = prometheusCRDnamespaces.asSlice()
 }
 
 func Main() int {

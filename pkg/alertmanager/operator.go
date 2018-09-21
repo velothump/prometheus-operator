@@ -74,6 +74,7 @@ type Config struct {
 	ConfigReloaderImage          string
 	AlertmanagerDefaultBaseImage string
 	Namespaces                   []string
+	AlertmangerCRDNamespaces     []string
 	Labels                       prometheusoperator.Labels
 	CrdKinds                     monitoringv1.CrdKinds
 	CrdGroup                     string
@@ -122,11 +123,12 @@ func New(c prometheusoperator.Config, logger log.Logger) (*Operator, error) {
 			EnableValidation:             c.EnableValidation,
 			DisableAutoUserGroup:         c.DisableAutoUserGroup,
 			ManageCRDs:                   c.ManageCRDs,
+			AlertmangerCRDNamespaces:     c.AlertmanagerCRDNamespaces,
 		},
 	}
 
 	o.alrtInf = cache.NewSharedIndexInformer(
-		listwatch.MultiNamespaceListerWatcher(o.config.Namespaces, func(namespace string) cache.ListerWatcher {
+		listwatch.MultiNamespaceListerWatcher(o.config.AlertmangerCRDNamespaces, func(namespace string) cache.ListerWatcher {
 			return &cache.ListWatch{
 				ListFunc:  o.mclient.MonitoringV1().Alertmanagers(namespace).List,
 				WatchFunc: o.mclient.MonitoringV1().Alertmanagers(namespace).Watch,
